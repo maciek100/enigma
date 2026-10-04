@@ -110,4 +110,49 @@ public class RotorTest {
             }
         }
     }
+
+    /*
+    3. Each setting is a full permutation. For each position and ring setting, the 26 outputs of forward
+    must all be different. Collect them in a boolean[26] or a Set and check that all 26 slots are filled.
+    This catches a bad modulo or offset that sends two inputs to the same output, which the round trip
+    alone might not reveal if backward has the same bug.
+     */
+    @Test
+    public void testRoundTripFullUniquePermutationForward() {
+        for (String rotorString : rotorStrings) {
+            for(int ringSetting = 0; ringSetting < 26; ringSetting++) {
+                Rotor rotor = new Rotor(ringSetting, rotorString);
+                for(int position = 0; position < 26; position++) {
+                    boolean [] result = new boolean[26];
+                    for (int input = 0; input < 26; input++) {
+                        int index = rotor.forward(input, position);
+                        result[index] = !result[index];
+                    }
+                    for (int i = 0; i < 26; i++) {
+                        assertTrue(result[i], "rotor= " + rotorString + " output "
+                                + (char)('A' + i) + " was never produced.");
+                    }
+                }
+            }
+        }
+    }
+    @Test
+    public void testRoundTripFullUniquePermutationBackward() {
+        for (String rotorString : rotorStrings) {
+            for(int ringSetting = 0; ringSetting < 26; ringSetting++) {
+                Rotor rotor = new Rotor(ringSetting, rotorString);
+                for(int position = 0; position < 26; position++) {
+                    boolean [] result = new boolean[26];
+                    for (int input = 0; input < 26; input++) {
+                        int index = rotor.backward(input, position);
+                        result[index] = !result[index];
+                    }
+                    for (int i = 0; i < 26; i++) {
+                        assertTrue(result[i], "rotor= " + rotorString + " output "
+                                + (char)('A' + i) + " was never produced.");
+                    }
+                }
+            }
+        }
+    }
 }
