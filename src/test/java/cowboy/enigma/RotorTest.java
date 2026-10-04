@@ -88,4 +88,26 @@ public class RotorTest {
             }
         }
     }
+    /*
+    2. Round trip everywhere. Nested loops over position (26) × ring setting (26) × input (26):
+    backward(forward(x, pos), pos) == x. Put pos, ring and x in the failure message so
+    a failure tells you exactly where.
+     */
+    @Test
+    public void testRoundTripEverywhere() {
+        for (String rotorString : rotorStrings) {
+            for(int ringSetting = 0; ringSetting < 26; ringSetting++) {
+                Rotor rotor = new Rotor(ringSetting, rotorString);
+                for(int position = 0; position < 26; position++) {
+                    for (int input = 0; input < 26; input++) {
+                        assertEquals(input,rotor.backward(rotor.forward(input, position), position),
+                                "rotor=" + rotorString
+                                        + " ring=" + ringSetting
+                                        + " position=" + position
+                                        + " x=" + input);
+                    }
+                }
+            }
+        }
+    }
 }
