@@ -1,74 +1,76 @@
 package cowboy.enigma;
 
 import com.cowboy.enigma.Rotor;
+import com.cowboy.enigma.RotorType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
+import static java.lang.System.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RotorTest {
 
-// ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    // ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    /* no longer needed. Saved here just for reference ...
     private List<String> rotorStrings = List.of(
             "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
             "AJDKSIRUXBLHWTMCQGZNPYFVOE",
             "BDFHJLCPRTXVZNYEIWGAKMUSQO",
             "ESOVPZJAYQUIRHXLNFTGKDCMWB",
             "VZBRGITYUPSDNHLXAWMJQOFECK");
-
+    */
     @Test
     public void testRotor1() {
         String expected = "UWYGADFPVZBECKMTHXSLRINQOJ";
-        Rotor rotor = new Rotor(2, rotorStrings.getFirst());
-        assertEquals(expected, rotor.expose());
+        Rotor rotor = new Rotor(RotorType.I, 0);
+        Assertions.assertEquals(expected, rotor.expose());
     }
 
     @Test
     public void testForward1() {
-        Rotor rotor = new Rotor(0, rotorStrings.getFirst());
+        Rotor rotor = new Rotor(RotorType.I, 0);
         int output = rotor.forward('C' - 'A', 'M' - 'A');
-        assertEquals('M', output + 'A');
+        Assertions.assertEquals('M', output + 'A');
     }
 
     @Test
     public void testForward2() {
-        Rotor rotor = new Rotor(3, rotorStrings.getFirst());
+        Rotor rotor = new Rotor(RotorType.I, 3);
         int output = rotor.forward(0, 0);
-        assertEquals('U', output + 'A');
+        Assertions.assertEquals('U', output + 'A');
     }
 
     @Test
     public void testBackward1() {
-        Rotor rotor = new Rotor(0, rotorStrings.getFirst());
+        Rotor rotor = new Rotor(RotorType.I, 0);
         int output = rotor.backward('M' - 'A', 'M' - 'A') ;
-        assertEquals('C', output + 'A');
+        Assertions.assertEquals('C', output + 'A');
     }
 
     @Test
     public void testBackward2() {
-        Rotor rotor = new Rotor(1, rotorStrings.getFirst());
+        Rotor rotor = new Rotor(RotorType.I, 1);
         int output = rotor.backward('L' - 'A', 'M' - 'A');
-        System.out.println((char)output);
-        assertEquals('C', output +'A');
+        out.println((char)output);
+        Assertions.assertEquals('C', output +'A');
     }
 
     @Test
     public void testBackward3() {
-        Rotor rotor = new Rotor(3, rotorStrings.getFirst());
+        Rotor rotor = new Rotor(RotorType.I, 3);
         int output = rotor.backward('U' - 'A', 'A' - 'A');
-        System.out.println((char)output);
-        assertEquals('A', output + 'A');
+        out.println((char)output);
+        Assertions.assertEquals('A', output + 'A');
     }
 
     @Test
     public void testForwardBackward() {
-        Rotor rotor = new Rotor(0, rotorStrings.getFirst());
+        Rotor rotor = new Rotor(RotorType.I, 0);
         char letter = 'F';
         int temp = rotor.forward(letter - 'A', 'M');
-        System.out.println(temp);
-        assertEquals(letter - 'A', rotor.backward(temp, 'M'));
+        out.println(temp);
+        Assertions.assertEquals(letter - 'A', rotor.backward(temp, 'M'));
     }
 
     // COMPREHENSIVE TESTS
@@ -80,11 +82,11 @@ public class RotorTest {
      */
     @Test
     public void testReferenceWiring() {
-        for (String rotorString : rotorStrings) {
-            Rotor rotor = new Rotor(0, rotorString);
-            char[] rsArray = rotorString.toCharArray();
+        for (RotorType rType : RotorType.values()) {
+            Rotor rotor = new Rotor(rType, 0);
+            char[] rsArray = rType.getWiring().toCharArray();
             for (int i = 0; i < 26; i++) {
-                assertEquals(rotor.forward(i, 0), rsArray[i] - 'A');
+                Assertions.assertEquals(rotor.forward(i, 0), rsArray[i] - 'A');
             }
         }
     }
@@ -95,13 +97,13 @@ public class RotorTest {
      */
     @Test
     public void testRoundTripEverywhere() {
-        for (String rotorString : rotorStrings) {
+        for (RotorType rType : RotorType.values()) {
             for(int ringSetting = 0; ringSetting < 26; ringSetting++) {
-                Rotor rotor = new Rotor(ringSetting, rotorString);
+                Rotor rotor = new Rotor(rType, ringSetting);
                 for(int position = 0; position < 26; position++) {
                     for (int input = 0; input < 26; input++) {
-                        assertEquals(input,rotor.backward(rotor.forward(input, position), position),
-                                "rotor=" + rotorString
+                        Assertions.assertEquals(input,rotor.backward(rotor.forward(input, position), position),
+                                "rotor=" + rType.name()
                                         + " ring=" + ringSetting
                                         + " position=" + position
                                         + " x=" + input);
@@ -119,9 +121,9 @@ public class RotorTest {
      */
     @Test
     public void testRoundTripFullUniquePermutationForward() {
-        for (String rotorString : rotorStrings) {
+        for (RotorType rType : RotorType.values()) {
             for(int ringSetting = 0; ringSetting < 26; ringSetting++) {
-                Rotor rotor = new Rotor(ringSetting, rotorString);
+                Rotor rotor = new Rotor(rType, ringSetting);
                 for(int position = 0; position < 26; position++) {
                     boolean [] result = new boolean[26];
                     for (int input = 0; input < 26; input++) {
@@ -129,7 +131,7 @@ public class RotorTest {
                         result[index] = !result[index];
                     }
                     for (int i = 0; i < 26; i++) {
-                        assertTrue(result[i], "rotor= " + rotorString + " output "
+                        assertTrue(result[i], "rotor= " + rType.name() + " output "
                                 + (char)('A' + i) + " was never produced.");
                     }
                 }
@@ -138,9 +140,9 @@ public class RotorTest {
     }
     @Test
     public void testRoundTripFullUniquePermutationBackward() {
-        for (String rotorString : rotorStrings) {
+        for (RotorType rType : RotorType.values()) {
             for(int ringSetting = 0; ringSetting < 26; ringSetting++) {
-                Rotor rotor = new Rotor(ringSetting, rotorString);
+                Rotor rotor = new Rotor(rType, ringSetting);
                 for(int position = 0; position < 26; position++) {
                     boolean [] result = new boolean[26];
                     for (int input = 0; input < 26; input++) {
@@ -148,11 +150,19 @@ public class RotorTest {
                         result[index] = !result[index];
                     }
                     for (int i = 0; i < 26; i++) {
-                        assertTrue(result[i], "rotor= " + rotorString + " output "
+                        assertTrue(result[i], "rotor= " + rType.name() + " output "
                                 + (char)('A' + i) + " was never produced.");
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    public void testTurnOvers() {
+        for (RotorType rType : RotorType.values()) {
+            Rotor subject = new Rotor(rType, 0);
+            assertTrue(subject.isAtTurnover(rType.getTurnover()));
         }
     }
 }

@@ -4,6 +4,7 @@ import java.util.stream.IntStream;
 
 public class Plugboard {
     private int [] plugs;
+
     public Plugboard(String pairs) {
         plugs = new int[26];
         IntStream.range(0, 26).forEach(i -> plugs[i] = i);
@@ -18,6 +19,10 @@ public class Plugboard {
                 plugs[c2 - 'A'] = c1 - 'A';
             }
         }
+    }
+
+    public static Plugboard empty() {
+        return new Plugboard("");
     }
 
     public int swap(int letter) {
