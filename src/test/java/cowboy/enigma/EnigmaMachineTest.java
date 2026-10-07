@@ -1,7 +1,6 @@
 package cowboy.enigma;
 
 import com.cowboy.enigma.*;
-//import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -103,6 +102,9 @@ public class EnigmaMachineTest {
 
     @Test
     public void testEnigmaEncryption03() {
+        String input = "AAAAA";
+        String expectedMid = "EWTYX";
+
         Rotor[] rotorOrder = new Rotor[] {
                 new Rotor(RotorType.I, 1),
                 new Rotor(RotorType.II, 1),
@@ -113,8 +115,7 @@ public class EnigmaMachineTest {
                 rotorOrder,
                 new Reflector(ReflectorType.B),
                 Plugboard.empty());
-        String input = "AAAAA";
-        String expectedMid = "EWTYX";
+
         WindowPositions rPositions = new WindowPositions(0, 0, 0);
         enigmaMachine.setWindowPositions(rPositions);
         StringBuilder midway = new StringBuilder();
@@ -147,5 +148,73 @@ public class EnigmaMachineTest {
             result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
         }
         assertEquals(input, result.toString());
+    }
+
+    @Test
+    public void testEnigmaEncryptionWithPlugboard() {
+        String input = "HELLOWORLD";
+        String expected = "CPQZNUMKFJ";
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.I, 1),
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.III, 1)
+        };
+        Plugboard plugboard = new Plugboard("AT BL DF GJ HM NW OP QY RZ VX");
+
+        enigmaMachine = new EnigmaMachine(
+                rotorOrder,
+                new Reflector(ReflectorType.B),
+                plugboard);
+        StringBuilder result = new StringBuilder();
+        for (char character : input.toCharArray()) {
+            result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(expected, result.toString());
+    }
+
+    @Test
+    public void testEnigmaDecryptionWithPlugboard() {
+        String input = "CPQZNUMKFJ";
+        String expected = "HELLOWORLD";
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.I, 1),
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.III, 1)
+        };
+        Plugboard plugboard = new Plugboard("AT BL DF GJ HM NW OP QY RZ VX");
+
+        enigmaMachine = new EnigmaMachine(
+                rotorOrder,
+                new Reflector(ReflectorType.B),
+                plugboard);
+        StringBuilder result = new StringBuilder();
+        for (char character : input.toCharArray()) {
+            result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(expected, result.toString());
+    }
+
+    @Test
+    public void testEnigmaWarMessage() {
+        String ciphertext = "EDPUDNRGYSZRCXNUYTPOMRMBOFKTBZREZKMLXLVEFGUEYSIOZVEQMIKUBPMMYLKLTTDEISMDICAGYKUACTCDOMOHWXMUUIAUBSTSLRNBZSZWNRFXWFYSSXJZVIJHIDISHPRKLKAYUPADTXQSPINQMATLPIFSVKDASCTACDPBOPVHJK";
+        String plaintext  = "AUFKLXABTEILUNGXVONXKURTINOWAXKURTINOWAXNORDWESTLXSEBEZXSEBEZXUAFFLIEGERSTRASZERIQTUNGXDUBROWKIXDUBROWKIXOPOTSCHKAXOPOTSCHKAXUMXEINSAQTDREINULLXUHRANGETRETENXANGRIFFXINFXRGTX";
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.IV, 20),
+                new Rotor(RotorType.V, 11)
+        };
+        Plugboard plugboard = new Plugboard("AV BS CG DL FU HZ IN KM OW RX");
+
+        enigmaMachine = new EnigmaMachine(
+                rotorOrder,
+                new Reflector(ReflectorType.B),
+                plugboard);
+        WindowPositions rPositions = new WindowPositions(1, 11, 0);
+        enigmaMachine.setWindowPositions(rPositions);
+        StringBuilder result = new StringBuilder();
+        for (char character : ciphertext.toCharArray()) {
+            result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(plaintext, result.toString());
     }
 }
