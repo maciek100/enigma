@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class EnigmaMachineTest {
 
@@ -27,13 +28,13 @@ public class EnigmaMachineTest {
 
     @Test
     public void testEnigmaMachine01() {
-        RingPositions expectedBefore = new RingPositions(0, 3, 20);
-        RingPositions expectedAfterStep1 = new RingPositions(0, 3, 21);
-        RingPositions expectedAfterStep2 = new RingPositions(0, 4, 22);
-        RingPositions expectedAfterStep3 = new RingPositions(1, 5, 23);
-        RingPositions expectedAfterStep4 = new RingPositions(1, 5, 24);
+        WindowPositions expectedBefore = new WindowPositions(0, 3, 20);
+        WindowPositions expectedAfterStep1 = new WindowPositions(0, 3, 21);
+        WindowPositions expectedAfterStep2 = new WindowPositions(0, 4, 22);
+        WindowPositions expectedAfterStep3 = new WindowPositions(1, 5, 23);
+        WindowPositions expectedAfterStep4 = new WindowPositions(1, 5, 24);
 
-        enigmaMachine.setPositions(new RingPositions(0, 3, 20));
+        enigmaMachine.setWindowPositions(new WindowPositions(0, 3, 20));
         assertEquals(expectedBefore, enigmaMachine.getPositions(), "Expected before");
 
         enigmaMachine.stepRotors();
@@ -51,8 +52,100 @@ public class EnigmaMachineTest {
     }
 
     @Test
-    public void testEnigmaMachine02() {
+    public void testEnigmaEncoding() {
+        String input = "AAAAA";
+        StringBuilder result = new StringBuilder();
+        enigmaMachine.setWindowPositions(new WindowPositions(0, 0, 0));
+        for (int i = 0; i < input.length(); i++) {
+            enigmaMachine.stepRotors();
+            result.append((char)(enigmaMachine.encode(input.charAt(i) - 'A') + 'A'));
+        }
+        assertEquals("BDZGO", result.toString());
+    }
 
+    @Test
+    public void testEnigmaEncryption01() {
+        String input = "AAAAA";
+        String expectedMid = "BDZGO";
+        WindowPositions rPositions = new WindowPositions(0, 0, 0);
+        enigmaMachine.setWindowPositions(rPositions);
+        StringBuilder midway = new StringBuilder();
+        StringBuilder result = new StringBuilder();
+        for (char character : input.toCharArray()) {
+            midway.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertNotEquals(input, midway.toString());
+        for (int i = 0; i < expectedMid.length(); i++) {
+            assertNotEquals(input.charAt(i), midway.charAt(i));
+        }
+        enigmaMachine.setWindowPositions(rPositions);
+        for (char character : midway.toString().toCharArray()) {
+            result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(input, result.toString());
+    }
+    @Test
+    public void testEnigmaEncryption02() {
+        String input = "ELANAANDLUPAARETHEBESTFRIENDS";
+        WindowPositions rPositions = new WindowPositions(0, 0, 0);
+        enigmaMachine.setWindowPositions(rPositions);
+        StringBuilder midway = new StringBuilder();
+        StringBuilder result = new StringBuilder();
+        for (char character : input.toCharArray()) {
+            midway.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        enigmaMachine.setWindowPositions(rPositions);
+        for (char character : midway.toString().toCharArray()) {
+            result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(input, result.toString());
+    }
 
+    @Test
+    public void testEnigmaEncryption03() {
+        Rotor[] rotorOrder = new Rotor[] {
+                new Rotor(RotorType.I, 1),
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.III, 1)
+        };
+
+        enigmaMachine = new EnigmaMachine(
+                rotorOrder,
+                new Reflector(ReflectorType.B),
+                Plugboard.empty());
+        String input = "AAAAA";
+        String expectedMid = "EWTYX";
+        WindowPositions rPositions = new WindowPositions(0, 0, 0);
+        enigmaMachine.setWindowPositions(rPositions);
+        StringBuilder midway = new StringBuilder();
+        StringBuilder result = new StringBuilder();
+        for (char character : input.toCharArray()) {
+            midway.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(expectedMid, midway.toString());
+        enigmaMachine.setWindowPositions(rPositions);
+        for (char character : midway.toString().toCharArray()) {
+            result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(input, result.toString());
+    }
+
+    @Test
+    public void testEnigmaEncryption04() {
+        String input = "AAAAA";
+        String expectedMid = "PGQPW";
+        WindowPositions rPositions = new WindowPositions(1, 1, 1);
+        enigmaMachine.setWindowPositions(rPositions);
+        StringBuilder midway = new StringBuilder();
+        StringBuilder result = new StringBuilder();
+        for (char character : input.toCharArray()) {
+            midway.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(expectedMid, midway.toString());
+        enigmaMachine.setWindowPositions(rPositions);
+        for (char character : midway.toString().toCharArray()) {
+            result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
+        }
+        assertEquals(input, result.toString());
     }
 }
