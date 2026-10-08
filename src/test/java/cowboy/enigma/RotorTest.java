@@ -68,9 +68,9 @@ public class RotorTest {
     public void testForwardBackward() {
         Rotor rotor = new Rotor(RotorType.I, 0);
         char letter = 'F';
-        int temp = rotor.forward(letter - 'A', 'M');
+        int temp = rotor.forward(letter - 'A', 'M' - 'A');
         out.println(temp);
-        Assertions.assertEquals(letter - 'A', rotor.backward(temp, 'M'));
+        Assertions.assertEquals(letter - 'A', rotor.backward(temp, 'M' - 'A'));
     }
 
     // COMPREHENSIVE TESTS
