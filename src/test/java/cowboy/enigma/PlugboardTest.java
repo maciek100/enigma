@@ -42,7 +42,7 @@ public class PlugboardTest {
     }
 
     @Test
-    public void testRejectStaringWithSpace() {
+    public void testRejectStartingWithSpace() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> new Plugboard(" AB CD"));
         assertTrue(iae.getMessage().contains("Incorrect character detected: ' '"));
@@ -82,7 +82,7 @@ public class PlugboardTest {
     public void testRejectLetterUsedTwiceSecondPosition() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> new Plugboard("AB VB"));
-        assertTrue(iae.getMessage().contains("Duplicate character detected: 'A'"));
+        assertTrue(iae.getMessage().contains("Duplicate character detected: 'B'"));
     }
     @Test
     public void testRejectInvalidCharacter() {
@@ -109,10 +109,16 @@ public class PlugboardTest {
     @Test
     public void acceptsEmptyPairTest() {
         Plugboard p = assertDoesNotThrow(() -> new Plugboard(""));
+        assertEquals('D' - 'A', p.swap('D' - 'A'));
+        assertEquals('A' - 'A', p.swap('A' - 'A'));
+        assertEquals('Z' - 'A', p.swap('Z' - 'A'));
     }
     @Test
     public void acceptsFullPairingTest() {
         Plugboard p = assertDoesNotThrow(() -> new Plugboard("AB CD EF GH IJ KL MN OP QR ST UV WX YZ"));
+        assertEquals('E' - 'A', p.swap('F' - 'A'));
+        assertEquals('Q' - 'A', p.swap('R' - 'A'));
+        assertEquals('P' - 'A', p.swap('O' - 'A'));
     }
     @Test
     public void testRejectLetterPluggedToItself() {
