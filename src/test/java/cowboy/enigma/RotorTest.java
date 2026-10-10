@@ -21,7 +21,7 @@ public class RotorTest {
     */
     @Test
     public void testRotor1() {
-        String expected = "UWYGADFPVZBECKMTHXSLRINQOJ";
+        String expected = "EKMFLGDQVZNTOWYHXUSPAIBRCJ";//"UWYGADFPVZBECKMTHXSLRINQOJ";
         Rotor rotor = new Rotor(RotorType.I, 0);
         Assertions.assertEquals(expected, rotor.expose());
     }
@@ -177,14 +177,14 @@ public class RotorTest {
     }
 
     @Test
-    public void testRotorCorrectParameters() {
+    public void testRotorConstructorRejectsNullType() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> new Rotor(null, 0));
         assertTrue(iae.getMessage().contains("Rotor type must not be null"));
     }
 
     @Test
-    public void testRotorConstructorRejectsIncorrectValues() {
+    public void testRotorConstructorRejectsRingAboveRange() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> new Rotor(RotorType.I, 26));
         assertTrue(iae.getMessage().contains("Ring setting must be between [0, 25]"));
