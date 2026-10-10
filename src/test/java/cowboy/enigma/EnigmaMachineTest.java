@@ -4,8 +4,8 @@ import com.cowboy.enigma.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EnigmaMachineTest {
 
@@ -215,5 +215,75 @@ public class EnigmaMachineTest {
             result.append((char)(enigmaMachine.encrypt(character - 'A') + 'A'));
         }
         assertEquals(plaintext, result.toString());
+    }
+
+    @Test
+    public void testConstructorNoNullRotors() {
+        Reflector reflector = new Reflector(ReflectorType.A);
+        Plugboard plugboard = new Plugboard("AB CD");
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new EnigmaMachine(null,reflector, plugboard));
+        assertTrue(iae.getMessage().contains("Rotors must not be null"));
+    }
+
+    @Test
+    public void testConstructorNoNullReflector() {
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.III, 1),
+                new Rotor(RotorType.IV, 20)
+        };
+        Plugboard plugboard = new Plugboard("AB CD");
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new EnigmaMachine(rotorOrder,null, plugboard));
+        assertTrue(iae.getMessage().contains("Reflector must not be null"));
+    }
+
+    @Test
+    public void testConstructorNoNullPlugboard() {
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.III, 1),
+                new Rotor(RotorType.IV, 20)
+        };
+        Reflector reflector = new Reflector(ReflectorType.A);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new EnigmaMachine(rotorOrder,reflector, null));
+        assertTrue(iae.getMessage().contains("Reflector must not be null"));
+    }
+
+    @Test
+    public void testConstructorAllRotorsCorrect() {
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.III, 1),
+                null
+        };
+        Reflector reflector = new Reflector(ReflectorType.A);
+        Plugboard plugboard = new Plugboard("AB CD");
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new EnigmaMachine(rotorOrder,reflector, plugboard));
+        assertTrue(iae.getMessage().contains("Exactly 3 non-null Rotors required"));
+    }
+
+    @Test
+    public void testConstructorCorrectWindowPositions() {
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.setWindowPositions(null));
+        assertTrue(iae.getMessage().contains("Window positions must not be null"));
+    }
+
+    @Test
+    public void testConstructorCorrectUniqueRotors() {
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.III, 1),
+                new Rotor(RotorType.IV, 20),
+                new Rotor(RotorType.IV, 11)
+        };
+        Reflector reflector = new Reflector(ReflectorType.A);
+        Plugboard plugboard = new Plugboard("AB CD");
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new EnigmaMachine(rotorOrder,reflector, plugboard));
+        assertTrue(iae.getMessage().contains("Duplicate Rotor type"));
     }
 }
