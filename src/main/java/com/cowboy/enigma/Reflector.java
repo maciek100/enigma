@@ -1,29 +1,28 @@
 package com.cowboy.enigma;
 
-import java.util.Arrays;
-
+/**
+ * A fixed, factory-wired reflector (Umkehrwalze). Wirings come only from
+ * {@link ReflectorType}; their validity is checked by ReflectorTypeTest.
+ */
 public class Reflector {
-    int size = 26;
-    int [] array = new int[size];
+    private static final int SIZE = 26;
 
-    public Reflector(String reflectorString) {
-        for (int i = 0; i < reflectorString.length(); i++) {
-            array[i] = reflectorString.charAt(i) - 'A';
-        }
-    }
+    private final int [] wiring = new int[SIZE];
 
     public Reflector(ReflectorType reflectorType) {
-        String reflectorString = reflectorType.getWiring();
-        for (int i = 0; i < reflectorString.length(); i++) {
-            array[i] = reflectorString.charAt(i) - 'A';
+        if (reflectorType == null) {
+            throw new IllegalArgumentException("Reflector type must not be null");
+        }
+        String wiringString = reflectorType.getWiring();
+        for (int i = 0; i < SIZE; i++) {
+            wiring[i] = wiringString.charAt(i) - 'A';
         }
     }
 
-    public int reflect (int position) {
-        return array[position];
-    }
-
-    public String expose () {
-        return Arrays.toString(array);
+    public int reflect(int input) {
+        if (input < 0 || input >= SIZE) {
+            throw new IllegalArgumentException("Reflector input must be between [0, 25]: " + input);
+        }
+        return wiring[input];
     }
 }
