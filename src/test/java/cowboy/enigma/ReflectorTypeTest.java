@@ -20,4 +20,13 @@ public class ReflectorTypeTest {
             }
         }
     }
+
+    @Test
+    public void reflectorWiringsMatchReference() {
+        // Typed in from https://www.cryptomuseum.com/crypto/enigma/wiring.htm
+        // Do NOT copy these from ReflectorType: they must come from the source.
+        assertEquals("EJMZALYXVBWFCRQUONTSPIKHGD", ReflectorType.A.getWiring(), "UKW-A");
+        assertEquals("YRUHQSLDPXNGOKMIEBFZCWVJAT", ReflectorType.B.getWiring(), "UKW-B");
+        assertEquals("FVPJIAOYEDRZXWGCTKUQSBNMHL", ReflectorType.C.getWiring(), "UKW-C");
+    }
 }

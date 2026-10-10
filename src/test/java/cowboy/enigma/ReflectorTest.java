@@ -51,7 +51,7 @@ public class ReflectorTest {
     }
 
     @Test
-    public void testRotorConstructorRejectsNullType() {
+    public void testReflectorConstructorRejectsNullType() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> new Reflector(null));
         assertTrue(iae.getMessage().contains("Reflector type must not be null"));
