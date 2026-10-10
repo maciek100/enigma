@@ -127,6 +127,13 @@ public class PlugboardTest {
         assertTrue(iae.getMessage().contains("Letter plugged to itself detected: 'H'"));
     }
 
+    @Test
+    public void testSwapTooLow() {
+        Plugboard plugboard = new Plugboard(PAIRS);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> plugboard.swap(-1));
+        assertTrue(iae.getMessage().contains("Window positions must not be null"));
+    }
     private static int idx(char c) {
         return (int)c - 'A';
     }
