@@ -19,10 +19,10 @@ public class Reflector {
         }
     }
 
-    public int reflect(int position) {
-        if (position < 0 || position >= SIZE) {
-            throw new IllegalArgumentException("Reflector position must be between [0, 25]: " + position);
+    public int reflect(int input) {
+        if (input < 0 || input >= SIZE) {
+            throw new IllegalArgumentException("Reflector input must be between [0, 25]: " + input);
         }
-        return wiring[position];
+        return wiring[input];
     }
 }
