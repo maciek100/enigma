@@ -1,44 +1,50 @@
 package com.cowboy.enigma;
 
-import java.util.Arrays;
-
 import static java.lang.Math.floorMod;
 
 public class Rotor {
-    int size = 26; //26
-    int [] wiring;
-    int [] reversedWiring;
-    int turnover;
-    final int ringSetting;
+    private static final int SIZE = 26;
+
+    private final int [] wiring;
+    private final int [] reversedWiring;
+    private final int turnover;
+    private final int ringSetting;
 
     public Rotor(RotorType rType, int ringSetting) {
+        if (rType == null) {
+            throw new IllegalArgumentException("Rotor type must not be null");
+        }
+        if (!inRange(ringSetting)) {
+            throw new IllegalArgumentException("Ring setting must be between [0, 25]: " + ringSetting);
+        }
         this.ringSetting = ringSetting;
         this.turnover = rType.getTurnover();
-        wiring = new int[size];
+        wiring = new int[SIZE];
         String wiringString = rType.getWiring();
         for (int i = 0; i < wiringString.length(); i++) {
-            int c = wiringString.charAt(i) - 'A'; // <- here convert to 0-25
-            wiring[i] = c;
+            wiring[i] = wiringString.charAt(i) - 'A'; // convert to 0-25
         }
-        reversedWiring = new int[size];
+        reversedWiring = new int[SIZE];
         for (int i = 0; i < wiring.length; i++) {
-            int index = wiring[i];
-            reversedWiring[index] = i;
+            reversedWiring[wiring[i]] = i;
         }
     }
 
     public int forward(int input, int position) {
-        int shift = floorMod((position - ringSetting), 26);
-        int coreContact = (input + shift) % size;
-        int temp = wiring[coreContact];
-        return floorMod(temp - shift, 26);// % size;
+        return pass(wiring, input, position);
     }
 
     public int backward(int input, int position) {
-        int shift = floorMod(position - ringSetting, 26);
-        int coreContact = floorMod(input + shift, 26);
-        int temp = reversedWiring[coreContact];
-        return floorMod(temp - shift, 26);
+        return pass(reversedWiring, input, position);
+    }
+
+    /** Shifts into the rotor core's frame, applies the wiring, and shifts back. */
+    private int pass(int [] map, int input, int position) {
+        checkInput(input);
+        checkPosition(position);
+        int shift = floorMod(position - ringSetting, SIZE);
+        int coreContact = floorMod(input + shift, SIZE);
+        return floorMod(map[coreContact] - shift, SIZE);
     }
 
     public String expose() {
@@ -50,6 +56,23 @@ public class Rotor {
     }
 
     public boolean isAtTurnover(int position) {
+        checkPosition(position);
         return position == turnover;
+    }
+
+    private static boolean inRange(int value) {
+        return value >= 0 && value < SIZE;
+    }
+
+    private static void checkInput(int input) {
+        if (!inRange(input)) {
+            throw new IllegalArgumentException("Rotor input must be between [0, 25]: " + input);
+        }
+    }
+
+    private static void checkPosition(int position) {
+        if (!inRange(position)) {
+            throw new IllegalArgumentException("Rotor position must be between [0, 25]: " + position);
+        }
     }
 }
