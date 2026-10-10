@@ -47,7 +47,6 @@ public class EnigmaMachineTest {
 
         enigmaMachine.stepRotors();
         assertEquals(expectedAfterStep4, enigmaMachine.getPositions(),"Expected after step 4");
-        //System.out.println(enigmaMachine.getPositions());
     }
 
     @Test

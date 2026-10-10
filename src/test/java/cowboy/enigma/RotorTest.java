@@ -65,6 +65,7 @@ public class RotorTest {
         Rotor rotor = new Rotor(RotorType.I, 0);
         char letter = 'F';
         int temp = rotor.forward(letter - 'A', 'M' - 'A');
+        Assertions.assertEquals('I' - 'A', temp); // hand-computed: F at position M -> I
         Assertions.assertEquals(letter - 'A', rotor.backward(temp, 'M' - 'A'));
     }
 
