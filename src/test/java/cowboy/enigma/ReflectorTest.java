@@ -40,13 +40,20 @@ public class ReflectorTest {
         Reflector reflector = new Reflector(ReflectorType.A);
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> reflector.reflect(-1));
-        assertTrue(iae.getMessage().contains("Reflector position must be between [0, 25]"));
+        assertTrue(iae.getMessage().contains("Reflector input must be between [0, 25]"));
     }
     @Test
     public void testReflectOutOfBoundsHigh () {
         Reflector reflector = new Reflector(ReflectorType.A);
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> reflector.reflect(26));
-        assertTrue(iae.getMessage().contains("Reflector position must be between [0, 25]"));
+        assertTrue(iae.getMessage().contains("Reflector input must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorConstructorRejectsNullType() {
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new Reflector(null));
+        assertTrue(iae.getMessage().contains("Reflector type must not be null"));
     }
 }
