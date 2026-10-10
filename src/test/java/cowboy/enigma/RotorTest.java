@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.System.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RotorTest {
 
@@ -164,5 +163,109 @@ public class RotorTest {
             Rotor subject = new Rotor(rType, 0);
             assertTrue(subject.isAtTurnover(rType.getTurnover()));
         }
+    }
+
+    @Test
+    public void testTurnOverBoundaries() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.isAtTurnover(26));
+        assertTrue(iae.getMessage().contains("Rotor position must be between [0, 25]"));
+        iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.isAtTurnover(-1));
+        assertTrue(iae.getMessage().contains("Rotor position must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorCorrectParameters() {
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new Rotor(null, 0));
+        assertTrue(iae.getMessage().contains("Rotor type must not be null"));
+    }
+
+    @Test
+    public void testRotorConstructorRejectsIncorrectValues() {
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new Rotor(RotorType.I, 26));
+        assertTrue(iae.getMessage().contains("Ring setting must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorConstructorRejectsNegativeValues() {
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> new Rotor(RotorType.IV, -1));
+        assertTrue(iae.getMessage().contains("Ring setting must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorForwardRejectsNegativeInput() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.forward(-1, 0));
+        assertTrue(iae.getMessage().contains("Rotor input must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorForwardRejectsNegativePosition() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.forward(1, -1));
+        assertTrue(iae.getMessage().contains("Rotor position must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorBackwardRejectsNegativeInput() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.backward(-1, 0));
+        assertTrue(iae.getMessage().contains("Rotor input must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorBackwardRejectsNegativePosition() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.backward(1, -1));
+        assertTrue(iae.getMessage().contains("Rotor position must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorForwardRejectsPositionAboveTheRange() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.forward(1, 26));
+        assertTrue(iae.getMessage().contains("Rotor position must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorForwardRejectsPosition_M_AboveTheRange() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.forward(1, 77));
+        assertTrue(iae.getMessage().contains("Rotor position must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorBackwardRejectsPositionAboveTheRange() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.backward(1, 26));
+        assertTrue(iae.getMessage().contains("Rotor position must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorForwardRejectsInputAboveTheRange() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.forward(26, 0));
+        assertTrue(iae.getMessage().contains("Rotor input must be between [0, 25]"));
+    }
+
+    @Test
+    public void testRotorBackwardRejectsInputAboveTheRange() {
+        Rotor subject = new Rotor(RotorType.II, 0);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> subject.backward(26, 0));
+        assertTrue(iae.getMessage().contains("Rotor input must be between [0, 25]"));
     }
 }

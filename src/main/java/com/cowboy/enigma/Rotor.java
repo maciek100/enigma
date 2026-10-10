@@ -43,7 +43,7 @@ public class Rotor {
 
     public String expose() {
         StringBuilder buffer = new StringBuilder();
-        for (int j : reversedWiring) {
+        for (int j : wiring) {
             buffer.append((char) (j + 'A'));
         }
         return buffer.toString();
