@@ -5,7 +5,6 @@ import com.cowboy.enigma.RotorType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static java.lang.System.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RotorTest {
@@ -21,7 +20,7 @@ public class RotorTest {
     */
     @Test
     public void testRotor1() {
-        String expected = "EKMFLGDQVZNTOWYHXUSPAIBRCJ";//"UWYGADFPVZBECKMTHXSLRINQOJ";
+        String expected = "EKMFLGDQVZNTOWYHXUSPAIBRCJ";
         Rotor rotor = new Rotor(RotorType.I, 0);
         Assertions.assertEquals(expected, rotor.expose());
     }
@@ -51,7 +50,6 @@ public class RotorTest {
     public void testBackward2() {
         Rotor rotor = new Rotor(RotorType.I, 1);
         int output = rotor.backward('L' - 'A', 'M' - 'A');
-        out.println((char)output);
         Assertions.assertEquals('C', output +'A');
     }
 
@@ -59,7 +57,6 @@ public class RotorTest {
     public void testBackward3() {
         Rotor rotor = new Rotor(RotorType.I, 3);
         int output = rotor.backward('U' - 'A', 'A' - 'A');
-        out.println((char)output);
         Assertions.assertEquals('A', output + 'A');
     }
 
@@ -68,7 +65,6 @@ public class RotorTest {
         Rotor rotor = new Rotor(RotorType.I, 0);
         char letter = 'F';
         int temp = rotor.forward(letter - 'A', 'M' - 'A');
-        out.println(temp);
         Assertions.assertEquals(letter - 'A', rotor.backward(temp, 'M' - 'A'));
     }
 
