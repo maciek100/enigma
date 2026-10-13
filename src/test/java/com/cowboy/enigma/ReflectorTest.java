@@ -1,7 +1,5 @@
 package com.cowboy.enigma;
 
-import com.cowboy.enigma.Reflector;
-import com.cowboy.enigma.ReflectorType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

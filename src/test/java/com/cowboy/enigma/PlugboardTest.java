@@ -1,6 +1,5 @@
 package com.cowboy.enigma;
 
-import com.cowboy.enigma.Plugboard;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

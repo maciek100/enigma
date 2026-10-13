@@ -1,10 +1,8 @@
 package com.cowboy.enigma;
 
-import com.cowboy.enigma.ReflectorType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReflectorTypeTest {
     @Test

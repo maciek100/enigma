@@ -1,11 +1,10 @@
 package com.cowboy.enigma;
 
-import com.cowboy.enigma.Rotor;
-import com.cowboy.enigma.RotorType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RotorTest {
 
