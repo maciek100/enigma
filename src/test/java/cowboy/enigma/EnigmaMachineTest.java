@@ -329,5 +329,13 @@ public class EnigmaMachineTest {
         assertTrue(iae.getMessage().contains("Machine input must be between [0, 25]"));
     }
 
+    @Test
+    public void testRotorsDoNotChange() {
+        Rotor[] rotors = { new Rotor(RotorType.I, 0), new Rotor(RotorType.II, 0), new Rotor(RotorType.III, 0) };
+        EnigmaMachine m = new EnigmaMachine(rotors, new Reflector(ReflectorType.B), Plugboard.empty());
+        int before = m.encode(0);
+        rotors[2] = new Rotor(RotorType.V, 0);          // caller tampers afterwards
+        assertEquals(before, m.encode(0));               // machine must not change
+    }
 
 }

@@ -132,8 +132,17 @@ public class PlugboardTest {
         Plugboard plugboard = new Plugboard(PAIRS);
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> plugboard.swap(-1));
-        assertTrue(iae.getMessage().contains("Window positions must not be null"));
+        assertTrue(iae.getMessage().contains("Plugboard input must be between [0, 25]"));
     }
+
+    @Test
+    public void testSwapTooHigh() {
+        Plugboard plugboard = new Plugboard(PAIRS);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> plugboard.swap(26));
+        assertTrue(iae.getMessage().contains("Plugboard input must be between [0, 25]"));
+    }
+
     private static int idx(char c) {
         return (int)c - 'A';
     }
