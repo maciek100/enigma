@@ -11,24 +11,27 @@ public class MessagePreparerTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', value = {
             "Hello | HELLO",
-            "Hello  world, HELLOXWORLD",
-            "  HELLO    | HELLO",
-            "HELLO,WORLD | HELLOWORLD",
-            "HELLO , WORLD | HELLOXWORLD",
-            "HELLO\tWORLD | HELLOXWORLD",
-            "HELLO\nWORLD | HELLOXWORLD",
+            "Hello  world   | HELLOXWORLD",
+            "'  HELLO    '  | HELLO",
+            "HELLO,WORLD    | HELLOWORLD",
+            "HELLO , WORLD  | HELLOXWORLD",
+            "HELLO\tWORLD   | HELLOXWORLD",
+            "HELLO\nWORLD   | HELLOXWORLD",
             "HELLO \t WORLD | HELLOXWORLD",
-            "345 | THREEFOURFIVE",
-            "A1 | AONE",
-            "1:23 | ONETWOTHREE",
-            "XRAY | XRAY",
-            "Müller, MILLER",
-            "!!!!!|",
-            "0123456789 | ZEROONETWOTHREEFOURFIVESIXSEVENEIGHTNINE",
+            "345            | THREEFOURFIVE",
+            "A1             | AONE",
+            "1:23           | ONETWOTHREE",
+            "XRAY           | XRAY",
+            "Müller         | MILLER",
+            "!!!!!          |",
+            "0123456789     | ZEROONETWOTHREEFOURFIVESIXSEVENEIGHTNINE",
             "|",
-            "ROCKY       BOTTOM | ROCKYXBOTTOM",
+            "ROCKY   BOTTOM | ROCKYXBOTTOM",
             "#!@!~ && $ |"
     })
+    void prepares(String input, String expected) {
+        assertEquals(expected, MessagePreparer.prepare(input));
+    }
     /*
     public void testMessagePreparerSimple() {
         assertEquals("HELLO", MessagePreparer.prepare("Hello"));
