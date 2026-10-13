@@ -447,6 +447,7 @@ public class EnigmaMachineTest {
         enigmaMachine.setWindowPositions(rPositions);
         String result = enigmaMachine.encryptText(plaintext);
         assertEquals(ciphertext, result);
+        enigmaMachine.setWindowPositions(rPositions);
         String reversed =  enigmaMachine.encryptText(result);
         assertEquals(plaintext, reversed);
     }
