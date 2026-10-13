@@ -88,4 +88,26 @@ public class EnigmaMachine {
         this.stepRotors();
         return encode(value);
     }
+
+    /**
+     * Encrypts (or, Enigma being reciprocal, decrypts) a text of uppercase letters A-Z,
+     * one key press per letter. The whole text is checked before any rotor moves, so a
+     * rejected call leaves the machine exactly as it was.
+     */
+    public String encryptText(String text) {
+        if (text == null) {
+            throw new IllegalArgumentException("Text must not be null");
+        }
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c < 'A' || c > 'Z') {
+                throw new IllegalArgumentException("Text must contain UPPERCASE CHARACTERS ONLY: '" + c + "'");
+            }
+        }
+        StringBuilder result = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            result.append((char) (encrypt(text.charAt(i) - 'A') + 'A'));
+        }
+        return result.toString();
+    }
 }

@@ -336,4 +336,119 @@ public class EnigmaMachineTest {
         assertEquals(before, m.encode(0));               // machine must not change
     }
 
+    private EnigmaMachine setMachineForTextTranslations() {
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.I, 1),
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.III, 1)
+        };
+        Plugboard plugboard = new Plugboard("AT BL DF GJ HM NW OP QY RZ VX");
+
+        return new EnigmaMachine(
+                rotorOrder,
+                new Reflector(ReflectorType.B),
+                plugboard);
+    }
+
+    @Test
+    public void testEnigmaEncryptText() {
+        String input = "HELLOWORLD";
+        String expected = "CPQZNUMKFJ";
+        enigmaMachine = setMachineForTextTranslations();
+        String output = enigmaMachine.encryptText(input);
+        assertEquals(expected, output);
+    }
+
+    @Test
+    public void testEnigmaDecryptText() {
+        String expected = "HELLOWORLD";
+        String  input = "CPQZNUMKFJ";
+        enigmaMachine = setMachineForTextTranslations();
+        String output = enigmaMachine.encryptText(input);
+        assertEquals(expected, output);
+    }
+
+    @Test
+    public void testEnigmaRejectsLowercaseText() {
+        String input = "helloworld";
+        enigmaMachine = setMachineForTextTranslations();
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.encryptText(input));
+        assertTrue(iae.getMessage().contains("Text must contain UPPERCASE CHARACTERS ONLY: "));
+    }
+
+    @Test
+    public void testEnigmaRejectsSpacesText() {
+        String input = "HELLO WORLD";
+        enigmaMachine = setMachineForTextTranslations();
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.encryptText(input));
+        assertTrue(iae.getMessage().contains("Text must contain UPPERCASE CHARACTERS ONLY: "));
+    }
+
+    @Test
+    public void testEnigmaRejectsIllegalCharactersText() {
+        String input = "HELLOWORLD!";
+        enigmaMachine = setMachineForTextTranslations();
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.encryptText(input));
+        assertTrue(iae.getMessage().contains("Text must contain UPPERCASE CHARACTERS ONLY: "));
+    }
+
+    @Test
+    public void testEnigmaRejectsNullInputText() {
+        String input = null;
+        enigmaMachine = setMachineForTextTranslations();
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.encryptText(input));
+        assertTrue(iae.getMessage().contains("Text must not be null"));
+    }
+
+    @Test
+    public void testEnigmaEncryptsEmptyInputText() {
+        String input = "";
+        enigmaMachine = setMachineForTextTranslations();
+        enigmaMachine = setMachineForTextTranslations();
+        String output = enigmaMachine.encryptText(input);
+        assertEquals("", output);
+    }
+
+    @Test
+    public void failedCallMustNOTMoveTheRotors() {
+        enigmaMachine = setMachineForTextTranslations();
+        WindowPositions before = enigmaMachine.getPositions();
+        assertThrows(IllegalArgumentException.class, () -> enigmaMachine.encryptText("Hello"));
+        assertEquals(before, enigmaMachine.getPositions());
+    }
+
+    @Test
+    public void rotorsCarryOverBetweenCalls() {
+        enigmaMachine = setMachineForTextTranslations();
+        assertEquals("CPQZNUMKFJ", enigmaMachine.encryptText("HELLO")
+                + enigmaMachine.encryptText("WORLD"));
+    }
+
+    @Test
+    public void barbarossaInOneCall() {
+        String ciphertext = "EDPUDNRGYSZRCXNUYTPOMRMBOFKTBZREZKMLXLVEFGUEYSIOZVEQMIKUBPMMYLKLTTDEISMDICAGYKUACTCDOMOHWXMUUIAUBSTSLRNBZSZWNRFXWFYSSXJZVIJHIDISHPRKLKAYUPADTXQSPINQMATLPIFSVKDASCTACDPBOPVHJK";
+        String plaintext  = "AUFKLXABTEILUNGXVONXKURTINOWAXKURTINOWAXNORDWESTLXSEBEZXSEBEZXUAFFLIEGERSTRASZERIQTUNGXDUBROWKIXDUBROWKIXOPOTSCHKAXOPOTSCHKAXUMXEINSAQTDREINULLXUHRANGETRETENXANGRIFFXINFXRGTX";
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.IV, 20),
+                new Rotor(RotorType.V, 11)
+        };
+        Plugboard plugboard = new Plugboard("AV BS CG DL FU HZ IN KM OW RX");
+
+        enigmaMachine = new EnigmaMachine(
+                rotorOrder,
+                new Reflector(ReflectorType.B),
+                plugboard);
+        WindowPositions rPositions = new WindowPositions(1, 11, 0);
+        enigmaMachine.setWindowPositions(rPositions);
+        String result = enigmaMachine.encryptText(plaintext);
+        assertEquals(ciphertext, result);
+        enigmaMachine.setWindowPositions(rPositions);
+        String reversed =  enigmaMachine.encryptText(result);
+        assertEquals(plaintext, reversed);
+    }
 }
