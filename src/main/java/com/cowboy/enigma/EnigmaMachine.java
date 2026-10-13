@@ -88,4 +88,8 @@ public class EnigmaMachine {
         this.stepRotors();
         return encode(value);
     }
+
+    public String encryptText(String text) {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
 }

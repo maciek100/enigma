@@ -336,4 +336,23 @@ public class EnigmaMachineTest {
         assertEquals(before, m.encode(0));               // machine must not change
     }
 
+    @Test
+    public void testEnigmaEncryptText() {
+        String input = "HELLOWORLD";
+        String expected = "CPQZNUMKFJ";
+        Rotor[] rotorOrder = new Rotor[]{
+                new Rotor(RotorType.I, 1),
+                new Rotor(RotorType.II, 1),
+                new Rotor(RotorType.III, 1)
+        };
+        Plugboard plugboard = new Plugboard("AT BL DF GJ HM NW OP QY RZ VX");
+
+        enigmaMachine = new EnigmaMachine(
+                rotorOrder,
+                new Reflector(ReflectorType.B),
+                plugboard);
+        String output = enigmaMachine.encryptText(input);
+        assertEquals(expected, output);
+    }
+
 }
