@@ -1,4 +1,4 @@
-package cowboy.enigma;
+package com.cowboy.enigma;
 
 import com.cowboy.enigma.ReflectorType;
 import org.junit.jupiter.api.Test;
