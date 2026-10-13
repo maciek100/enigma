@@ -5,6 +5,7 @@ import static java.lang.Math.floorMod;
 public class Rotor {
     private static final int SIZE = 26;
 
+    private final RotorType type;
     private final int [] wiring;
     private final int [] reversedWiring;
     private final int turnover;
@@ -17,6 +18,7 @@ public class Rotor {
         if (!inRange(ringSetting)) {
             throw new IllegalArgumentException("Ring setting must be between [0, 25]: " + ringSetting);
         }
+        this.type = rType;
         this.ringSetting = ringSetting;
         this.turnover = rType.getTurnover();
         wiring = new int[SIZE];
@@ -45,6 +47,10 @@ public class Rotor {
         int shift = floorMod(position - ringSetting, SIZE);
         int coreContact = floorMod(input + shift, SIZE);
         return floorMod(map[coreContact] - shift, SIZE);
+    }
+
+    public RotorType getType() {
+        return type;
     }
 
     public String expose() {

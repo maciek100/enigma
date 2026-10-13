@@ -67,6 +67,9 @@ public class Plugboard {
     }
 
     public int swap(int letter) {
+        if (letter < 0 || letter >= plugs.length) {
+            throw new IllegalArgumentException("Plugboard input must be between [0, 25]: " + letter);
+        }
         return plugs[letter];
     }
 }
