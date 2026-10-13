@@ -336,10 +336,7 @@ public class EnigmaMachineTest {
         assertEquals(before, m.encode(0));               // machine must not change
     }
 
-    @Test
-    public void testEnigmaEncryptText() {
-        String input = "HELLOWORLD";
-        String expected = "CPQZNUMKFJ";
+    private EnigmaMachine setMachineForTextTranslations() {
         Rotor[] rotorOrder = new Rotor[]{
                 new Rotor(RotorType.I, 1),
                 new Rotor(RotorType.II, 1),
@@ -347,12 +344,72 @@ public class EnigmaMachineTest {
         };
         Plugboard plugboard = new Plugboard("AT BL DF GJ HM NW OP QY RZ VX");
 
-        enigmaMachine = new EnigmaMachine(
+        return new EnigmaMachine(
                 rotorOrder,
                 new Reflector(ReflectorType.B),
                 plugboard);
+    }
+
+    @Test
+    public void testEnigmaEncryptText() {
+        String input = "HELLOWORLD";
+        String expected = "CPQZNUMKFJ";
+        enigmaMachine = setMachineForTextTranslations();
         String output = enigmaMachine.encryptText(input);
         assertEquals(expected, output);
     }
 
+    @Test
+    public void testEnigmaDecryptText() {
+        String expected = "HELLOWORLD";
+        String  input = "CPQZNUMKFJ";
+        enigmaMachine = setMachineForTextTranslations();
+        String output = enigmaMachine.encryptText(input);
+        assertEquals(expected, output);
+    }
+
+    @Test
+    public void testEnigmaRejectsLowercaseText() {
+        String input = "hellowworld";
+        enigmaMachine = setMachineForTextTranslations();
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.encryptText(input));
+        assertTrue(iae.getMessage().contains("Text must contain UPPERCASE CHARACTERS ONLY"));
+    }
+
+    @Test
+    public void testEnigmaRejectsSpacesText() {
+        String input = "HELLO WORLD";
+        enigmaMachine = setMachineForTextTranslations();
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.encryptText(input));
+        assertTrue(iae.getMessage().contains("Text must contain UPPERCASE CHARACTERS ONLY"));
+    }
+
+    @Test
+    public void testEnigmaRejectsIllegalCharactersText() {
+        String input = "HELLOWORLD!";
+        enigmaMachine = setMachineForTextTranslations();
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.encryptText(input));
+        assertTrue(iae.getMessage().contains("Text must contain UPPERCASE CHARACTERS ONLY"));
+    }
+
+    @Test
+    public void testEnigmaRejectsNullInputText() {
+        String input = null;
+        enigmaMachine = setMachineForTextTranslations();
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> enigmaMachine.encryptText(input));
+        assertTrue(iae.getMessage().contains("Text must not be null"));
+    }
+
+    @Test
+    public void testEnigmaEncryptsEmptyInputText() {
+        String input = null;
+        enigmaMachine = setMachineForTextTranslations();
+        enigmaMachine = setMachineForTextTranslations();
+        String output = enigmaMachine.encryptText(input);
+        assertEquals("", output);
+    }
 }
