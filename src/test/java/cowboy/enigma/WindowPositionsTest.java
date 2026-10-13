@@ -52,7 +52,7 @@ public class WindowPositionsTest {
     public void testWindowPositionsLeftTooHigh() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> new WindowPositions(26,20,20));
-        assertTrue(iae.getMessage().contains("Window Position values must be must be between [0, 25]"));
+        assertTrue(iae.getMessage().contains("Window Position values must be between [0, 25]"));
 
     }
 }

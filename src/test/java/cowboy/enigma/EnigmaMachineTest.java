@@ -295,7 +295,7 @@ public class EnigmaMachineTest {
     }
 
     @Test
-    public void testCorrectWindowPositions() {
+    public void testSetWindowPositionsRejectsNull() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> enigmaMachine.setWindowPositions(null));
         assertTrue(iae.getMessage().contains("Window positions must not be null"));
@@ -319,14 +319,14 @@ public class EnigmaMachineTest {
     public void testEncodeTooLow() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> enigmaMachine.encode(-1));
-        assertTrue(iae.getMessage().contains("Window positions must not be null"));
+        assertTrue(iae.getMessage().contains("Machine input must be between [0, 25]"));
     }
 
     @Test
     public void testEncodeTooHigh() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
                 () -> enigmaMachine.encode(26));
-        assertTrue(iae.getMessage().contains("Window positions must not be null"));
+        assertTrue(iae.getMessage().contains("Machine input must be between [0, 25]"));
     }
 
 
