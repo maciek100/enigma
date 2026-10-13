@@ -16,20 +16,22 @@ public class MessagePreparerTest {
             "HELLO,WORLD    | HELLOWORLD",
             "HELLO , WORLD  | HELLOXWORLD",
             "HELLO\tWORLD   | HELLOXWORLD",
-            "HELLO\nWORLD   | HELLOXWORLD",
+            "'HELLO\nWORLD'   | HELLOXWORLD",
             "HELLO \t WORLD | HELLOXWORLD",
             "345            | THREEFOURFIVE",
             "A1             | AONE",
             "1:23           | ONETWOTHREE",
             "XRAY           | XRAY",
-            "Müller         | MILLER",
-            "!!!!!          |",
+            "Müller         | MLLER",
+            "!!!!!          | ''",
             "0123456789     | ZEROONETWOTHREEFOURFIVESIXSEVENEIGHTNINE",
-            "|",
+            "''|''",
             "ROCKY   BOTTOM | ROCKYXBOTTOM",
-            "#!@!~ && $ |"
+            "#!@!~ && $ |''",
+            "Hello ,  World | HELLOXWORLD"
     })
     void prepares(String input, String expected) {
+        System.out.println("[" + input + "] -> [" + expected + "]");
         assertEquals(expected, MessagePreparer.prepare(input));
     }
     /*
