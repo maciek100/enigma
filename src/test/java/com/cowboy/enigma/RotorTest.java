@@ -1,10 +1,9 @@
 package com.cowboy.enigma;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class RotorTest {
 
@@ -21,42 +20,42 @@ public class RotorTest {
     public void testRotor1() {
         String expected = "EKMFLGDQVZNTOWYHXUSPAIBRCJ";
         Rotor rotor = new Rotor(RotorType.I, 0);
-        Assertions.assertEquals(expected, rotor.expose());
+        assertEquals(expected, rotor.expose());
     }
 
     @Test
     public void testForward1() {
         Rotor rotor = new Rotor(RotorType.I, 0);
         int output = rotor.forward('C' - 'A', 'M' - 'A');
-        Assertions.assertEquals('M', output + 'A');
+        assertEquals('M', output + 'A');
     }
 
     @Test
     public void testForward2() {
         Rotor rotor = new Rotor(RotorType.I, 3);
         int output = rotor.forward(0, 0);
-        Assertions.assertEquals('U', output + 'A');
+        assertEquals('U', output + 'A');
     }
 
     @Test
     public void testBackward1() {
         Rotor rotor = new Rotor(RotorType.I, 0);
         int output = rotor.backward('M' - 'A', 'M' - 'A') ;
-        Assertions.assertEquals('C', output + 'A');
+        assertEquals('C', output + 'A');
     }
 
     @Test
     public void testBackward2() {
         Rotor rotor = new Rotor(RotorType.I, 1);
         int output = rotor.backward('L' - 'A', 'M' - 'A');
-        Assertions.assertEquals('C', output +'A');
+        assertEquals('C', output +'A');
     }
 
     @Test
     public void testBackward3() {
         Rotor rotor = new Rotor(RotorType.I, 3);
         int output = rotor.backward('U' - 'A', 'A' - 'A');
-        Assertions.assertEquals('A', output + 'A');
+        assertEquals('A', output + 'A');
     }
 
     @Test
@@ -64,8 +63,8 @@ public class RotorTest {
         Rotor rotor = new Rotor(RotorType.I, 0);
         char letter = 'F';
         int temp = rotor.forward(letter - 'A', 'M' - 'A');
-        Assertions.assertEquals('I' - 'A', temp); // hand-computed: F at position M -> I
-        Assertions.assertEquals(letter - 'A', rotor.backward(temp, 'M' - 'A'));
+        assertEquals('I' - 'A', temp); // hand-computed: F at position M -> I
+        assertEquals(letter - 'A', rotor.backward(temp, 'M' - 'A'));
     }
 
     // COMPREHENSIVE TESTS
@@ -81,7 +80,7 @@ public class RotorTest {
             Rotor rotor = new Rotor(rType, 0);
             char[] rsArray = rType.getWiring().toCharArray();
             for (int i = 0; i < 26; i++) {
-                Assertions.assertEquals(rotor.forward(i, 0), rsArray[i] - 'A');
+                assertEquals(rotor.forward(i, 0), rsArray[i] - 'A');
             }
         }
     }
@@ -97,7 +96,7 @@ public class RotorTest {
                 Rotor rotor = new Rotor(rType, ringSetting);
                 for(int position = 0; position < 26; position++) {
                     for (int input = 0; input < 26; input++) {
-                        Assertions.assertEquals(input,rotor.backward(rotor.forward(input, position), position),
+                        assertEquals(input,rotor.backward(rotor.forward(input, position), position),
                                 "rotor=" + rType.name()
                                         + " ring=" + ringSetting
                                         + " position=" + position
