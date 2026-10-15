@@ -30,6 +30,11 @@ class EnigmaControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private static final String VALID = """
+    { "rotors": ["I","II","III"], "rings": "AAA", "positions": "AAA",
+      "reflector": "B", "plugboard": "AT BL DF GJ HM NW OP QY RZ VX", "text": "HELLO" }
+    """;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     private ResultActions postJson(String json) throws Exception {
@@ -39,7 +44,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptHelloWorld() throws Exception {
+    void acceptsHelloWorld() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -60,7 +65,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectDuplicatePlugboardLetter() throws Exception {
+    void rejectsDuplicatePlugboardLetter() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -79,7 +84,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptLowerCaseRotorLetters() throws Exception {
+    void acceptsLowerCaseRotorLetters() throws Exception {
         String request = """
                 {
                   "rotors":    ["i", "ii", "iii"],
@@ -99,7 +104,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptLowerCaseRingLetters() throws Exception {
+    void acceptsLowerCaseRingLetters() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -119,7 +124,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptLowerCasePositionLetters() throws Exception {
+    void acceptsLowerCasePositionLetters() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -138,7 +143,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptLowerCaseReflectorLetter() throws Exception {
+    void acceptsLowerCaseReflectorLetter() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -157,7 +162,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptLowerCasePlugboardLetter() throws Exception {
+    void acceptsLowerCasePlugboardLetter() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -176,7 +181,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptAndPrepareFreeText() throws Exception {
+    void acceptsAndPreparesFreeText() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -248,7 +253,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptEmptyText() throws Exception {
+    void acceptsEmptyText() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -268,7 +273,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void acceptTextThatPreparesToNothing() throws Exception {
+    void acceptsTextThatPreparesToNothing() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -289,7 +294,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectDuplicateRotors() throws Exception {
+    void rejectsDuplicateRotors() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "I", "III"],
@@ -309,7 +314,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectNullRotor() throws Exception {
+    void rejectsNullRotor() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", null, "III"],
@@ -329,7 +334,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectWrongRotorCount() throws Exception {
+    void rejectsWrongRotorCount() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II"],
@@ -349,7 +354,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectUnknownRotor() throws Exception {
+    void rejectsUnknownRotor() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "VI", "II"],
@@ -369,7 +374,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectUnknownReflector() throws Exception {
+    void rejectsUnknownReflector() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "V", "II"],
@@ -389,7 +394,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectMalformedRequest() throws Exception {
+    void rejectsMalformedRequest() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "V", 
@@ -407,11 +412,6 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Malformed request")));
     }
-
-    private static final String VALID = """
-    { "rotors": ["I","II","III"], "rings": "AAA", "positions": "AAA",
-      "reflector": "B", "plugboard": "AT BL DF GJ HM NW OP QY RZ VX", "text": "HELLO" }
-    """;
 
     @ParameterizedTest
     @CsvSource(delimiter = '|', value = {
@@ -437,7 +437,7 @@ class EnigmaControllerTest {
             "positions | AAAA | Positions must be 3 letters A-Z: AAAA",
             "positions | A3A  | Positions must be 3 letters A-Z: A3A"
     })
-    void rejectBadLetters(String field, String value, String message) throws Exception {
+    void rejectsBadLetters(String field, String value, String message) throws Exception {
         ObjectNode body = (ObjectNode) mapper.readTree(VALID);
         body.put(field, value);
         postJson(body.toString())
@@ -447,7 +447,7 @@ class EnigmaControllerTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"rotors", "rings", "positions", "reflector", "plugboard", "text"})
-    void rejectNullField(String field) throws Exception {
+    void rejectsNullField(String field) throws Exception {
         ObjectNode body = (ObjectNode) mapper.readTree(VALID);
         body.putNull(field);
         postJson(body.toString())
