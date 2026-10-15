@@ -11,6 +11,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 import static org.hamcrest.Matchers.containsString;
@@ -18,9 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import tools.jackson.databind.ObjectMapper;
-import org.springframework.test.web.servlet.ResultActions;
-
 
 
 @SpringBootTest
@@ -55,9 +54,7 @@ class EnigmaControllerTest {
                   "text":      "HELLOWORLD"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.output").value("CPQZNUMKFJ"))
                 .andExpect(jsonPath("$.prepared").value("HELLOWORLD"))
@@ -76,9 +73,7 @@ class EnigmaControllerTest {
                   "text":      "HELLO"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(containsString("Duplicate character detected: 'A'")));
     }
@@ -95,9 +90,7 @@ class EnigmaControllerTest {
                   "text":      "HELLO"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.output").value("FBBCG"))
                 .andExpect(jsonPath("$.finalPositions").value("AAF"));
@@ -115,9 +108,7 @@ class EnigmaControllerTest {
                   "text":      "HELLO"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.output").value("FBBCG"))
                 .andExpect(jsonPath("$.finalPositions").value("AAF"));
@@ -135,9 +126,7 @@ class EnigmaControllerTest {
                   "text":      "HELLO WORLD"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.output").value("FBBCGFZNCKF"));
     }
@@ -154,9 +143,7 @@ class EnigmaControllerTest {
                   "text":      "HELLO WORLD"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.output").value("FBBCGFZNCKF"));
     }
@@ -173,9 +160,7 @@ class EnigmaControllerTest {
                   "text":      "HELLO WORLD"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.output").value("FBBCGFZNCKF"));
     }
@@ -192,9 +177,7 @@ class EnigmaControllerTest {
                   "text":      "Hello world!"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.prepared").value("HELLOXWORLD"));
     }
@@ -264,9 +247,7 @@ class EnigmaControllerTest {
                   "text":      ""
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.output").value(""))
                 .andExpect(jsonPath("$.finalPositions").value("AAA"));
@@ -284,9 +265,7 @@ class EnigmaControllerTest {
                   "text":      "!!!!"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.finalPositions").value("AAA"))
                 .andExpect(jsonPath("$.prepared").value(""))
@@ -305,9 +284,7 @@ class EnigmaControllerTest {
                   "text":      "Hello"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Duplicate Rotor type:")));
@@ -325,9 +302,7 @@ class EnigmaControllerTest {
                   "text":      "Hello"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Exactly 3 non-null Rotors required")));
@@ -345,9 +320,7 @@ class EnigmaControllerTest {
                   "text":      "Hello"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Exactly 3 non-null Rotors required")));
@@ -365,9 +338,7 @@ class EnigmaControllerTest {
                   "text":      "Hello"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Unknown Rotor:")));
@@ -385,9 +356,7 @@ class EnigmaControllerTest {
                   "text":      "Hello"
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Unknown Reflector:")));
@@ -405,9 +374,7 @@ class EnigmaControllerTest {
                   "text":      null
                 }
                 """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+        postJson(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Malformed request")));
