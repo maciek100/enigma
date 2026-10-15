@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -222,7 +223,7 @@ class EnigmaControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String cipher = JsonPath.read(first.getResponse().getContentAsString(), "$.output");
-
+        assertEquals(ciphertext, cipher);
         //2. decrypt
         // 2. decrypt: same settings, ciphertext as input
         mockMvc.perform(post("/api/enigma")
@@ -240,7 +241,7 @@ class EnigmaControllerTest {
                   "rings":     "AAA",
                   "positions": "AAA",
                   "reflector": "B",
-                  "plugboard": "at bl df gj hm nw op qy rz vx",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
                   "text":      ""
                 }
                 """;
@@ -248,11 +249,12 @@ class EnigmaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.output").value(""));
+                .andExpect(jsonPath("$.output").value(""))
+                .andExpect(jsonPath("$.finalPosition").value("AAA"));
     }
 
     @Test
-    void acceptPreparerTurnsNothing() throws Exception {
+    void acceptTextThatPreparesToNothing() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -267,7 +269,8 @@ class EnigmaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.output").value(""));
+                .andExpect(jsonPath("$.finalPosition").value("AAA"))
+                .andExpect(jsonPath("$.prepared").value(""));
     }
 
     @Test
@@ -285,9 +288,88 @@ class EnigmaControllerTest {
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Duplicate Rotor type:")));
+    }
+
+    @Test
+    void rejectWrongLetterRotor() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "I", "III"],
+                  "rings":     "A7A",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Wrong Rotor type:")));
+    }
+
+    @Test
+    void rejectWrongLetterRing() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "I", "III"],
+                  "rings":     "AAA",
+                  "positions": "AA4",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Wrong Position:")));
+    }
+
+    @Test
+    void rejectNullRotor() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", null, "III"],
+                  "rings":     "AAA",
+                  "positions": "AA4",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Null Rotor:")));
+    }
+
+    @Test
+    void rejectMissingRotors() throws Exception {
+        String request = """
+                {
+                  "rings":     "AAA",
+                  "positions": "AA4",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Missing rotors")));
     }
 
     @Test
@@ -305,16 +387,16 @@ class EnigmaControllerTest {
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
-                        .value(containsString("Exactly 3 unique non-null Rotors required")));
+                        .value(containsString("Exactly 3 non-null Rotors required")));
     }
 
     @Test
     void rejectUnknownRotor() throws Exception {
         String request = """
                 {
-                  "rotors":    ["I", ,"VI", "II"],
+                  "rotors":    ["I", "VI", "II"],
                   "rings":     "AAA",
                   "positions": "AAA",
                   "reflector": "B",
@@ -325,7 +407,7 @@ class EnigmaControllerTest {
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Unknown Rotor:")));
     }
@@ -334,7 +416,7 @@ class EnigmaControllerTest {
     void rejectUnknownReflector() throws Exception {
         String request = """
                 {
-                  "rotors":    ["I", ,"V", "II"],
+                  "rotors":    ["I", "V", "II"],
                   "rings":     "AAA",
                   "positions": "AAA",
                   "reflector": "D",
@@ -345,19 +427,19 @@ class EnigmaControllerTest {
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Unknown Reflector:")));
     }
 
     @Test
-    void rejectWrongRinsCount() throws Exception {
+    void rejectWrongRingsCount() throws Exception {
         String request = """
                 {
-                  "rotors":    ["I", ,"V", "II"],
+                  "rotors":    ["I", "V", "II"],
                   "rings":     "AA",
                   "positions": "AAA",
-                  "reflector": "D",
+                  "reflector": "B",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
                   "text":      "Hello"
                 }
@@ -365,7 +447,7 @@ class EnigmaControllerTest {
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Rings must be 3 letters A-Z:")));
     }
@@ -374,10 +456,10 @@ class EnigmaControllerTest {
     void rejectWrongPositionsCount() throws Exception {
         String request = """
                 {
-                  "rotors":    ["I", ,"V", "II"],
+                  "rotors":    ["I", "V", "II"],
                   "rings":     "AAA",
                   "positions": "AAAA",
-                  "reflector": "D",
+                  "reflector": "B",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
                   "text":      "Hello"
                 }
@@ -385,7 +467,7 @@ class EnigmaControllerTest {
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Positions must be 3 letters A-Z:")));
     }
@@ -394,18 +476,58 @@ class EnigmaControllerTest {
     void rejectMissingText() throws Exception {
         String request = """
                 {
-                  "rotors":    ["I", ,"V", "II"],
+                  "rotors":    ["I", "V", "II"],
                   "rings":     "AAA",
-                  "positions": "AAAA",
-                  "reflector": "D",
+                  "positions": "AAA",
+                  "reflector": "B",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX"
                 }
                 """;
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Field 'text' is required")));
+    }
+
+    @Test
+    void rejectNullText() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "V", "II"],
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      null
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Field 'text' is required")));
+    }
+
+    @Test
+    void rejectMalformedRequest() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "V", 
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      null
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Malformed request")));
     }
 }
