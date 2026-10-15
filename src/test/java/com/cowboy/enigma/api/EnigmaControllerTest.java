@@ -44,7 +44,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectsDuplicatePlugboardLetter() throws Exception {
+    void rejectDuplicatePlugboardLetter() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -160,7 +160,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    public void isPreparerWiredIn() throws Exception {
+    public void validatesPreparerWiredIn() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -179,7 +179,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    public void roundTripTest() throws Exception {
+    public void roundTrip() throws Exception {
         String settings = """
                   "rotors":    ["I", "II", "III"],
                   "rings":     "BBB",
@@ -195,7 +195,6 @@ class EnigmaControllerTest {
                 .andReturn();
         String cipher = JsonPath.read(first.getResponse().getContentAsString(), "$.output");
 
-        //2. decrypt
         // 2. decrypt: same settings, ciphertext as input
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -292,27 +291,6 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Duplicate Rotor type:")));
     }
-/*
-    @Test
-    void rejectWrongLetterRotor() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "VI", "III"],
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "Hello"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Wrong Rotor type:")));
-    }
-    */
 
     @Test
     void rejectNoneLetterRing() throws Exception {
@@ -438,7 +416,7 @@ class EnigmaControllerTest {
                 {
                   "rotors":    ["I", "II", "III"],
                   "rings":     "AAA",
-                  "rings":     "AAA",
+                  "positions":     "AAA",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
                   "text":      "HELLOWORLD"
                 }
