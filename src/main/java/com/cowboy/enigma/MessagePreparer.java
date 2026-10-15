@@ -46,7 +46,7 @@ public final class MessagePreparer {
                 continue; // whitespace is remembered, everything else is dropped
             }
             // emit one SPACE_MARK for any run of breaks, but never at the very start
-            if (pendingBreak && result.length() > 0) {
+            if (pendingBreak && !result.isEmpty()) {
                 result.append(SPACE_MARK);
             }
             pendingBreak = false;
