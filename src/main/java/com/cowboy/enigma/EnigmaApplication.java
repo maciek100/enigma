@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Spring Boot entry point. Lives in the api package so the core
- * (com.cowboy.enigma) stays a plain Java library with no Spring dependency.
+ * Spring Boot entry point. Lives in the root package so Spring scans every
+ * sub-package; the core (com.cowboy.enigma.core) has no Spring imports.
  */
 @SpringBootApplication
 public class EnigmaApplication {
