@@ -1,4 +1,4 @@
-package com.cowboy.enigma;
+package com.cowboy.enigma.core;
 
 /** The three letters visible in the rotor windows, left to right, each 0-25 (A-Z). */
 public record WindowPositions(int left, int middle, int right) {

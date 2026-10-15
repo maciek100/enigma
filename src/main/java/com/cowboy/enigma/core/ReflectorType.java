@@ -1,4 +1,4 @@
-package com.cowboy.enigma;
+package com.cowboy.enigma.core;
 
 public enum ReflectorType {
     A ("EJMZALYXVBWFCRQUONTSPIKHGD"),

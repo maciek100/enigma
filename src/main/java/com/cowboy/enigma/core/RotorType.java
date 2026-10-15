@@ -1,4 +1,4 @@
-package com.cowboy.enigma;
+package com.cowboy.enigma.core;
 
 public enum RotorType {
     I  ("EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'Q'),

@@ -1,4 +1,4 @@
-package com.cowboy.enigma.api;
+package com.cowboy.enigma;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

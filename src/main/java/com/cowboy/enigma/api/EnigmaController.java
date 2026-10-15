@@ -1,13 +1,13 @@
 package com.cowboy.enigma.api;
 
-import com.cowboy.enigma.EnigmaMachine;
-import com.cowboy.enigma.MessagePreparer;
-import com.cowboy.enigma.Plugboard;
-import com.cowboy.enigma.Reflector;
-import com.cowboy.enigma.ReflectorType;
-import com.cowboy.enigma.Rotor;
-import com.cowboy.enigma.RotorType;
-import com.cowboy.enigma.WindowPositions;
+import com.cowboy.enigma.core.EnigmaMachine;
+import com.cowboy.enigma.core.MessagePreparer;
+import com.cowboy.enigma.core.Plugboard;
+import com.cowboy.enigma.core.Reflector;
+import com.cowboy.enigma.core.ReflectorType;
+import com.cowboy.enigma.core.Rotor;
+import com.cowboy.enigma.core.RotorType;
+import com.cowboy.enigma.core.WindowPositions;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
