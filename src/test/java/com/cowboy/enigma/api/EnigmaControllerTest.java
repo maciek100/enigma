@@ -224,7 +224,6 @@ class EnigmaControllerTest {
                 .andReturn();
         String cipher = JsonPath.read(first.getResponse().getContentAsString(), "$.output");
         assertEquals(ciphertext, cipher);
-        //2. decrypt
         // 2. decrypt: same settings, ciphertext as input
         mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -250,7 +249,7 @@ class EnigmaControllerTest {
                         .content(request))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.output").value(""))
-                .andExpect(jsonPath("$.finalPosition").value("AAA"));
+                .andExpect(jsonPath("$.finalPositions").value("AAA"));
     }
 
     @Test
@@ -269,8 +268,9 @@ class EnigmaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.finalPosition").value("AAA"))
-                .andExpect(jsonPath("$.prepared").value(""));
+                .andExpect(jsonPath("$.finalPositions").value("AAA"))
+                .andExpect(jsonPath("$.prepared").value(""))
+                .andExpect(jsonPath("$.output").value(""));
     }
 
     @Test
@@ -297,8 +297,8 @@ class EnigmaControllerTest {
     void rejectWrongLetterRotor() throws Exception {
         String request = """
                 {
-                  "rotors":    ["I", "I", "III"],
-                  "rings":     "A7A",
+                  "rotors":    ["I", "VI", "III"],
+                  "rings":     "AAA",
                   "positions": "AAA",
                   "reflector": "B",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
@@ -317,9 +317,9 @@ class EnigmaControllerTest {
     void rejectWrongLetterRing() throws Exception {
         String request = """
                 {
-                  "rotors":    ["I", "I", "III"],
-                  "rings":     "AAA",
-                  "positions": "AA4",
+                  "rotors":    ["I", "II", "III"],
+                  "rings":     "AA6",
+                  "positions": "AAA",
                   "reflector": "B",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
                   "text":      "Hello"
@@ -330,7 +330,7 @@ class EnigmaControllerTest {
                         .content(request))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
-                        .value(containsString("Wrong Position:")));
+                        .value(containsString("Positions must be 3 letters A-Z:")));
     }
 
     @Test
@@ -339,7 +339,7 @@ class EnigmaControllerTest {
                 {
                   "rotors":    ["I", null, "III"],
                   "rings":     "AAA",
-                  "positions": "AA4",
+                  "positions": "AAA",
                   "reflector": "B",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
                   "text":      "Hello"
@@ -350,7 +350,7 @@ class EnigmaControllerTest {
                         .content(request))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
-                        .value(containsString("Null Rotor:")));
+                        .value(containsString("Exactly 3 non-null Rotors required")));
     }
 
     @Test
@@ -358,7 +358,7 @@ class EnigmaControllerTest {
         String request = """
                 {
                   "rings":     "AAA",
-                  "positions": "AA4",
+                  "positions": "AAA",
                   "reflector": "B",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
                   "text":      "Hello"
@@ -369,7 +369,63 @@ class EnigmaControllerTest {
                         .content(request))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
-                        .value(containsString("Missing rotors")));
+                        .value(containsString("Field 'rotors' is required")));
+    }
+    @Test
+    void rejectMissingRings() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "II", "III"],
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "HELLOWORLD"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Field 'rings' is required")));
+    }
+
+    @Test
+    void rejectMissingPositions() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "II", "III"],
+                  "rings":     "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "HELLOWORLD"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Field 'rings' is required")));
+    }
+
+    @Test
+    void rejectMissingPlugboard() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "II", "III"],
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "text":      "HELLOWORLD"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Field 'plugboard' is required")));
     }
 
     @Test
