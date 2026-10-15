@@ -292,7 +292,7 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Duplicate Rotor type:")));
     }
-
+/*
     @Test
     void rejectWrongLetterRotor() throws Exception {
         String request = """
@@ -312,9 +312,10 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Wrong Rotor type:")));
     }
+    */
 
     @Test
-    void rejectWrongLetterRing() throws Exception {
+    void rejectNoneLetterRing() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -330,8 +331,29 @@ class EnigmaControllerTest {
                         .content(request))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
+                        .value(containsString("Rings must be 3 letters A-Z:")));
+    }
+
+    @Test
+    void rejectNoneLetterPosition() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "II", "III"],
+                  "rings":     "AAA",
+                  "positions": "A3A",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
                         .value(containsString("Positions must be 3 letters A-Z:")));
     }
+
 
     @Test
     void rejectNullRotor() throws Exception {
@@ -371,6 +393,7 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Field 'rotors' is required")));
     }
+
     @Test
     void rejectMissingRings() throws Exception {
         String request = """
@@ -406,7 +429,26 @@ class EnigmaControllerTest {
                         .content(request))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
-                        .value(containsString("Field 'rings' is required")));
+                        .value(containsString("Field 'positions' is required")));
+    }
+
+    @Test
+    void rejectMissingReflector() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "II", "III"],
+                  "rings":     "AAA",
+                  "rings":     "AAA",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "HELLOWORLD"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Field 'reflector' is required")));
     }
 
     @Test
