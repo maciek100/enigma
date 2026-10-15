@@ -2,18 +2,26 @@ package com.cowboy.enigma.api;
 
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import tools.jackson.databind.ObjectMapper;
+import org.springframework.test.web.servlet.ResultActions;
+
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -21,6 +29,14 @@ class EnigmaControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    private ResultActions postJson(String json) throws Exception {
+        return mockMvc.perform(post("/api/enigma")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+    }
 
     @Test
     void acceptHelloWorld() throws Exception {
@@ -293,47 +309,6 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectNonLetterRing() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "AA6",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "Hello"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Rings must be 3 letters A-Z:")));
-    }
-
-    @Test
-    void rejectNonLetterPosition() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "AAA",
-                  "positions": "A3A",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "Hello"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Positions must be 3 letters A-Z:")));
-    }
-
-
-    @Test
     void rejectNullRotor() throws Exception {
         String request = """
                 {
@@ -351,101 +326,6 @@ class EnigmaControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Exactly 3 non-null Rotors required")));
-    }
-
-    @Test
-    void rejectMissingRotors() throws Exception {
-        String request = """
-                {
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "Hello"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Field 'rotors' is required")));
-    }
-
-    @Test
-    void rejectMissingRings() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "HELLOWORLD"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Field 'rings' is required")));
-    }
-
-    @Test
-    void rejectMissingPositions() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "HELLOWORLD"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Field 'positions' is required")));
-    }
-
-    @Test
-    void rejectMissingReflector() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "HELLOWORLD"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Field 'reflector' is required")));
-    }
-
-    @Test
-    void rejectMissingPlugboard() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "text":      "HELLOWORLD"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Field 'plugboard' is required")));
     }
 
     @Test
@@ -509,85 +389,6 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectWrongRingsCount() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "V", "II"],
-                  "rings":     "AA",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "Hello"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Rings must be 3 letters A-Z:")));
-    }
-
-    @Test
-    void rejectWrongPositionsCount() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "V", "II"],
-                  "rings":     "AAA",
-                  "positions": "AAAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "Hello"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Positions must be 3 letters A-Z:")));
-    }
-
-    @Test
-    void rejectMissingText() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "V", "II"],
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX"
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Field 'text' is required")));
-    }
-
-    @Test
-    void rejectNullText() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "V", "II"],
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      null
-                }
-                """;
-        mockMvc.perform(post("/api/enigma")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error")
-                        .value(containsString("Field 'text' is required")));
-    }
-
-    @Test
     void rejectMalformedRequest() throws Exception {
         String request = """
                 {
@@ -605,5 +406,52 @@ class EnigmaControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
                         .value(containsString("Malformed request")));
+    }
+
+    private static final String VALID = """
+    { "rotors": ["I","II","III"], "rings": "AAA", "positions": "AAA",
+      "reflector": "B", "plugboard": "AT BL DF GJ HM NW OP QY RZ VX", "text": "HELLO" }
+    """;
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            "rotors    | Field 'rotors' is required",
+            "rings     | Field 'rings' is required",
+            "positions | Field 'positions' is required",
+            "reflector | Field 'reflector' is required",
+            "plugboard | Field 'plugboard' is required",
+            "text      | Field 'text' is required"
+    })
+    void rejectsMissingField(String field, String message) throws Exception {
+        ObjectNode body = (ObjectNode) mapper.readTree(VALID);
+        body.remove(field);
+        postJson(body.toString())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(message));
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            "rings     | AA   | Rings must be 3 letters A-Z: AA",
+            "rings     | AA6  | Rings must be 3 letters A-Z: AA6",
+            "positions | AAAA | Positions must be 3 letters A-Z: AAAA",
+            "positions | A3A  | Positions must be 3 letters A-Z: A3A"
+    })
+    void rejectBadLetters(String field, String value, String message) throws Exception {
+        ObjectNode body = (ObjectNode) mapper.readTree(VALID);
+        body.put(field, value);
+        postJson(body.toString())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(message));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"rotors", "rings", "positions", "reflector", "plugboard", "text"})
+    void rejectNullField(String field) throws Exception {
+        ObjectNode body = (ObjectNode) mapper.readTree(VALID);
+        body.putNull(field);
+        postJson(body.toString())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Field '" + field + "' is required"));
     }
 }
