@@ -159,7 +159,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    public void isPreparerWiredIn () throws Exception {
+    public void isPreparerWiredIn() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -178,7 +178,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    public void roundTripTest () throws Exception {
+    public void roundTripTest() throws Exception {
         String settings = """
                   "rotors":    ["I", "II", "III"],
                   "rings":     "BBB",
@@ -189,7 +189,7 @@ class EnigmaControllerTest {
         // 1. encrypt
         MvcResult first = mockMvc.perform(post("/api/enigma")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{" + settings + "\"text\": \"HELLOWWORLD\"}"))
+                        .content("{" + settings + "\"text\": \"HELLOWORLD\"}"))
                 .andExpect(status().isOk())
                 .andReturn();
         String cipher = JsonPath.read(first.getResponse().getContentAsString(), "$.output");
@@ -203,4 +203,209 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.output").value("HELLOWORLD"));
     }
 
+    @Test
+    public void barbarossaRoundTripTest() throws Exception {
+        String ciphertext = "EDPUDNRGYSZRCXNUYTPOMRMBOFKTBZREZKMLXLVEFGUEYSIOZVEQMIKUBPMMYLKLTTDEISMDICAGYKUACTCDOMOHWXMUUIAUBSTSLRNBZSZWNRFXWFYSSXJZVIJHIDISHPRKLKAYUPADTXQSPINQMATLPIFSVKDASCTACDPBOPVHJK";
+        String plaintext  = "AUFKLXABTEILUNGXVONXKURTINOWAXKURTINOWAXNORDWESTLXSEBEZXSEBEZXUAFFLIEGERSTRASZERIQTUNGXDUBROWKIXDUBROWKIXOPOTSCHKAXOPOTSCHKAXUMXEINSAQTDREINULLXUHRANGETRETENXANGRIFFXINFXRGTX";
+
+        String settings = """
+                  "rotors":    ["II", "IV", "V"],
+                  "rings":     "BUL",
+                  "positions": "BLA",
+                  "reflector": "B",
+                  "plugboard": "AV BS CG DL FU HZ IN KM OW RX",
+                """;
+        // 1. encrypt
+        MvcResult first = mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{" + settings + "\"text\": \"" + plaintext + "\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String cipher = JsonPath.read(first.getResponse().getContentAsString(), "$.output");
+
+        //2. decrypt
+        // 2. decrypt: same settings, ciphertext as input
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{" + settings + "\"text\": \"" + cipher + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.output").value(plaintext));
+    }
+
+    @Test
+    void acceptEmptyText() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "II", "III"],
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "at bl df gj hm nw op qy rz vx",
+                  "text":      ""
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.output").value(""));
+    }
+
+    @Test
+    void acceptPreparerTurnsNothing() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "II", "III"],
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "!!!!"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.output").value(""));
+    }
+
+    @Test
+    void rejectDuplicateRotors() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "I", "III"],
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Duplicate Rotor type:")));
+    }
+
+    @Test
+    void rejectWrongRotorCount() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", "II"],
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Exactly 3 unique non-null Rotors required")));
+    }
+
+    @Test
+    void rejectUnknownRotor() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", ,"VI", "II"],
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "B",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Unknown Rotor:")));
+    }
+
+    @Test
+    void rejectUnknownReflector() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", ,"V", "II"],
+                  "rings":     "AAA",
+                  "positions": "AAA",
+                  "reflector": "D",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Unknown Reflector:")));
+    }
+
+    @Test
+    void rejectWrongRinsCount() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", ,"V", "II"],
+                  "rings":     "AA",
+                  "positions": "AAA",
+                  "reflector": "D",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Rings must be 3 letters A-Z:")));
+    }
+
+    @Test
+    void rejectWrongPositionsCount() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", ,"V", "II"],
+                  "rings":     "AAA",
+                  "positions": "AAAA",
+                  "reflector": "D",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
+                  "text":      "Hello"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Positions must be 3 letters A-Z:")));
+    }
+
+    @Test
+    void rejectMissingText() throws Exception {
+        String request = """
+                {
+                  "rotors":    ["I", ,"V", "II"],
+                  "rings":     "AAA",
+                  "positions": "AAAA",
+                  "reflector": "D",
+                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX"
+                }
+                """;
+        mockMvc.perform(post("/api/enigma")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error")
+                        .value(containsString("Field 'text' is required")));
+    }
 }
