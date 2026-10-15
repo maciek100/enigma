@@ -23,7 +23,7 @@ class EnigmaControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void encryptsHelloWorld() throws Exception {
+    void acceptHelloWorld() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -160,7 +160,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    public void validatesPreparerWiredIn() throws Exception {
+    void acceptAndPrepareFreeText() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -179,7 +179,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    public void roundTrip() throws Exception {
+    void acceptsRoundTrip() throws Exception {
         String settings = """
                   "rotors":    ["I", "II", "III"],
                   "rings":     "BBB",
@@ -204,7 +204,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    public void barbarossaRoundTripTest() throws Exception {
+    void barbarossaRoundTripTest() throws Exception {
         String ciphertext = "EDPUDNRGYSZRCXNUYTPOMRMBOFKTBZREZKMLXLVEFGUEYSIOZVEQMIKUBPMMYLKLTTDEISMDICAGYKUACTCDOMOHWXMUUIAUBSTSLRNBZSZWNRFXWFYSSXJZVIJHIDISHPRKLKAYUPADTXQSPINQMATLPIFSVKDASCTACDPBOPVHJK";
         String plaintext  = "AUFKLXABTEILUNGXVONXKURTINOWAXKURTINOWAXNORDWESTLXSEBEZXSEBEZXUAFFLIEGERSTRASZERIQTUNGXDUBROWKIXDUBROWKIXOPOTSCHKAXOPOTSCHKAXUMXEINSAQTDREINULLXUHRANGETRETENXANGRIFFXINFXRGTX";
 
@@ -293,7 +293,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectNoneLetterRing() throws Exception {
+    void rejectNonLetterRing() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -313,7 +313,7 @@ class EnigmaControllerTest {
     }
 
     @Test
-    void rejectNoneLetterPosition() throws Exception {
+    void rejectNonLetterPosition() throws Exception {
         String request = """
                 {
                   "rotors":    ["I", "II", "III"],
@@ -416,7 +416,7 @@ class EnigmaControllerTest {
                 {
                   "rotors":    ["I", "II", "III"],
                   "rings":     "AAA",
-                  "positions":     "AAA",
+                  "positions": "AAA",
                   "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
                   "text":      "HELLOWORLD"
                 }
