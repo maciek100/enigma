@@ -1,4 +1,4 @@
-package com.cowboy.enigma;
+package com.cowboy.enigma.core;
 
 /**
  * Turns free text into machine-ready text (A-Z only), for {@link EnigmaMachine#encryptText}.

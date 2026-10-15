@@ -1,4 +1,4 @@
-package com.cowboy.enigma;
+package com.cowboy.enigma.core;
 
 /**
  * A fixed, factory-wired reflector (Umkehrwalze). Wirings come only from
