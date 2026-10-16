@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.util.Locale;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -76,93 +78,6 @@ class EnigmaControllerTest {
         postJson(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(containsString("Duplicate character detected: 'A'")));
-    }
-
-    @Test
-    void acceptsLowerCaseRotorLetters() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["i", "ii", "iii"],
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "HELLO"
-                }
-                """;
-        postJson(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.output").value("FBBCG"))
-                .andExpect(jsonPath("$.finalPositions").value("AAF"));
-    }
-
-    @Test
-    void acceptsLowerCaseRingLetters() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "aaa",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "HELLO"
-                }
-                """;
-        postJson(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.output").value("FBBCG"))
-                .andExpect(jsonPath("$.finalPositions").value("AAF"));
-    }
-
-    @Test
-    void acceptsLowerCasePositionLetters() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "AAA",
-                  "positions": "aaa",
-                  "reflector": "B",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "HELLO WORLD"
-                }
-                """;
-        postJson(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.output").value("FBBCGFZNCKF"));
-    }
-
-    @Test
-    void acceptsLowerCaseReflectorLetter() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "reflector": "b",
-                  "plugboard": "AT BL DF GJ HM NW OP QY RZ VX",
-                  "text":      "HELLO WORLD"
-                }
-                """;
-        postJson(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.output").value("FBBCGFZNCKF"));
-    }
-
-    @Test
-    void acceptsLowerCasePlugboardLetter() throws Exception {
-        String request = """
-                {
-                  "rotors":    ["I", "II", "III"],
-                  "rings":     "AAA",
-                  "positions": "AAA",
-                  "reflector": "B",
-                  "plugboard": "at bl df gj hm nw op qy rz vx",
-                  "text":      "HELLO WORLD"
-                }
-                """;
-        postJson(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.output").value("FBBCGFZNCKF"));
     }
 
     @Test
@@ -380,7 +295,7 @@ class EnigmaControllerTest {
                         .value(containsString("Malformed request")));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "rejects missing field {0}")
     @CsvSource(delimiter = '|', value = {
             "rotors    | Field 'rotors' is required",
             "rings     | Field 'rings' is required",
@@ -397,7 +312,7 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.error").value(message));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "rejects {0} = {1}")
     @CsvSource(delimiter = '|', value = {
             "rings     | AA   | Rings must be 3 letters A-Z: AA",
             "rings     | AA6  | Rings must be 3 letters A-Z: AA6",
@@ -412,7 +327,7 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.error").value(message));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "rejects null field {0}")
     @ValueSource(strings = {"rotors", "rings", "positions", "reflector", "plugboard", "text"})
     void rejectsNullField(String field) throws Exception {
         ObjectNode body = (ObjectNode) mapper.readTree(VALID);
@@ -420,5 +335,17 @@ class EnigmaControllerTest {
         postJson(body.toString())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Field '" + field + "' is required"));
+    }
+
+    @ParameterizedTest(name = "accepts lowercase {0}")
+    @ValueSource(strings = {"rotors", "rings", "positions", "reflector", "plugboard"})
+    void acceptsLowerCase(String field) throws Exception {
+        ObjectNode body = (ObjectNode) mapper.readTree(VALID);
+        String lowerJson = body.get(field).toString().toLowerCase(Locale.ROOT);
+        body.set(field, mapper.readTree(lowerJson));
+        postJson(body.toString())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.output").value("FBBCG"))
+                .andExpect(jsonPath("$.finalPositions").value("AAF"));
     }
 }
