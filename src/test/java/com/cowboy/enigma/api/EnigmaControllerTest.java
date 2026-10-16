@@ -312,7 +312,7 @@ class EnigmaControllerTest {
                 .andExpect(jsonPath("$.error").value(message));
     }
 
-    @ParameterizedTest(name = "rejects bad letters {0}")
+    @ParameterizedTest(name = "rejects {0} = {1}")
     @CsvSource(delimiter = '|', value = {
             "rings     | AA   | Rings must be 3 letters A-Z: AA",
             "rings     | AA6  | Rings must be 3 letters A-Z: AA6",
